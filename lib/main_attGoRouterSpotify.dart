@@ -165,12 +165,12 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.login,
       name: AppRoutes.loginName,
-      builder: (_, __) => const LoginScreen(),
+      builder: (_, _) => const LoginScreen(),
     ),
     GoRoute(
       path: AppRoutes.home,
       name: AppRoutes.homeName,
-      builder: (_, __) => const HomeScreen(),
+      builder: (_, _) => const HomeScreen(),
 
       routes: [
         GoRoute(
@@ -323,9 +323,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1DB954).withOpacity(0.08),
+                      color: const Color(0xFF1DB954).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF1DB954).withOpacity(0.25)),
+                      border: Border.all(color: const Color(0xFF1DB954).withValues(alpha: 0.25)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,9 +381,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
                       ),
                       child: Row(
                         children: [
@@ -463,7 +463,7 @@ class HomeScreen extends StatelessWidget {
             automaticallyImplyLeading: false, // ← sem botão de voltar na Home
             title: ListenableBuilder(
               listenable: authService,
-              builder: (_, __) => Text('$saudacao, ${authService.loggedUserName ?? 'você'} 👋'),
+              builder: (_, _) => Text('$saudacao, ${authService.loggedUserName ?? 'você'} 👋'),
             ),
             actions: [
               IconButton(
@@ -648,7 +648,7 @@ class _MiniPlayer extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(6),
             ),
             child: const Icon(Icons.music_note_rounded, color: Colors.black, size: 22),
@@ -697,7 +697,7 @@ class PlaylistScreen extends StatelessWidget {
             expandedHeight: 280,
             pinned: true,
             stretch: true,
-            backgroundColor: playlist.cor.withOpacity(0.95),
+            backgroundColor: playlist.cor.withValues(alpha: 0.95),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white), // ← A SETA
               tooltip: 'Voltar',
@@ -780,7 +780,7 @@ class _PlaylistHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [playlist.cor, playlist.cor.withOpacity(0.6), const Color(0xFF121212)],
+          colors: [playlist.cor, playlist.cor.withValues(alpha: 0.6), const Color(0xFF121212)],
           stops: const [0.0, 0.6, 1.0],
         ),
       ),
@@ -794,11 +794,11 @@ class _PlaylistHeader extends StatelessWidget {
               height: 160,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.25),
+                color: Colors.black.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     blurRadius: 30,
                     offset: const Offset(0, 10),
                   ),

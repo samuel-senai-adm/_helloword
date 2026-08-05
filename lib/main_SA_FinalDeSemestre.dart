@@ -16,10 +16,7 @@ class SupermercadoApp extends StatelessWidget {
       title: "Lista de Supermercado",
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kGreen,
-          primary: kGreen,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: kGreen, primary: kGreen),
       ),
       home: const MainPage(),
     );
@@ -125,7 +122,10 @@ class _MainPageState extends State<MainPage> {
             ),
             child: Column(
               children: [
-                const Text("Valor Total", style: TextStyle(color: Colors.white70)),
+                const Text(
+                  "Valor Total",
+                  style: TextStyle(color: Colors.white70),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   "R\$ ${totalCompra.toStringAsFixed(2)}",
@@ -140,10 +140,16 @@ class _MainPageState extends State<MainPage> {
           ),
           Expanded(
             child: produtos.isEmpty
-                ? const Center(child: Text("Nenhum produto cadastrado", style: TextStyle(fontSize: 18)))
+                ? const Center(
+                    child: Text(
+                      "Nenhum produto cadastrado",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  )
                 : ListView.builder(
                     itemCount: produtos.length,
-                    itemBuilder: (context, index) => cardProduto(produtos[index], index),
+                    itemBuilder: (context, index) =>
+                        cardProduto(produtos[index], index),
                   ),
           ),
         ],
@@ -155,7 +161,10 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Categorias"), centerTitle: true),
       body: const Center(
-        child: Text("Em breve: filtros por categoria", style: TextStyle(fontSize: 18)),
+        child: Text(
+          "Em breve: filtros por categoria",
+          style: TextStyle(fontSize: 18),
+        ),
       ),
     );
   }
@@ -165,17 +174,24 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Carrinho"), centerTitle: true),
       body: itens.isEmpty
-          ? const Center(child: Text("Carrinho vazio", style: TextStyle(fontSize: 18)))
+          ? const Center(
+              child: Text("Carrinho vazio", style: TextStyle(fontSize: 18)),
+            )
           : ListView.builder(
               itemCount: itens.length,
               itemBuilder: (context, index) {
                 final p = itens[index];
                 return ListTile(
                   title: Text(p.nome),
-                  subtitle: Text("${p.quantidade} x R\$ ${p.preco.toStringAsFixed(2)}"),
+                  subtitle: Text(
+                    "${p.quantidade} x R\$ ${p.preco.toStringAsFixed(2)}",
+                  ),
                   trailing: Text(
                     "R\$ ${p.total.toStringAsFixed(2)}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: kGreen),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: kGreen,
+                    ),
                   ),
                 );
               },
@@ -190,9 +206,16 @@ class _MainPageState extends State<MainPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(radius: 40, backgroundColor: kGreen, child: Icon(Icons.person, size: 50, color: Colors.white)),
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: kGreen,
+              child: Icon(Icons.person, size: 50, color: Colors.white),
+            ),
             SizedBox(height: 16),
-            Text("Meu Perfil", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              "Meu Perfil",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -215,7 +238,9 @@ class _MainPageState extends State<MainPage> {
             decoration: produto.comprado ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: Text("${produto.quantidade} x R\$ ${produto.preco.toStringAsFixed(2)}"),
+        subtitle: Text(
+          "${produto.quantidade} x R\$ ${produto.preco.toStringAsFixed(2)}",
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -304,8 +329,12 @@ class _FormularioProdutoState extends State<FormularioProduto> {
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.produto?.nome ?? '');
-    _quantidadeController = TextEditingController(text: widget.produto?.quantidade.toString() ?? '1');
-    _precoController = TextEditingController(text: widget.produto?.preco.toStringAsFixed(2) ?? '');
+    _quantidadeController = TextEditingController(
+      text: widget.produto?.quantidade.toString() ?? '1',
+    );
+    _precoController = TextEditingController(
+      text: widget.produto?.preco.toStringAsFixed(2) ?? '',
+    );
   }
 
   @override
@@ -345,7 +374,8 @@ class _FormularioProdutoState extends State<FormularioProduto> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.shopping_basket),
                 ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Informe o nome' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Informe o nome' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -370,7 +400,9 @@ class _FormularioProdutoState extends State<FormularioProduto> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (v) {
                   final p = double.tryParse((v ?? '').replaceAll(',', '.'));
                   if (p == null || p < 0) return 'Preço inválido';
@@ -382,8 +414,14 @@ class _FormularioProdutoState extends State<FormularioProduto> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-        FilledButton(onPressed: _salvar, child: Text(isEditando ? 'Salvar' : 'Adicionar')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: _salvar,
+          child: Text(isEditando ? 'Salvar' : 'Adicionar'),
+        ),
       ],
     );
   }

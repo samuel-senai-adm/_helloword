@@ -5,6 +5,8 @@ void main() {
 }
 
 class MeuApp extends StatelessWidget {
+  const MeuApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     // MaterialApp inicia o aplicativo
@@ -13,6 +15,8 @@ class MeuApp extends StatelessWidget {
 }
 
 class TelaFormulario extends StatefulWidget {
+  const TelaFormulario({super.key});
+
   @override
   _TelaFormularioState createState() => _TelaFormularioState();
 }

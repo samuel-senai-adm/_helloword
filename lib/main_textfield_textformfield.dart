@@ -5,6 +5,8 @@ void main() {
 }
 
 class MeuApp extends StatelessWidget {
+  const MeuApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,6 +16,8 @@ class MeuApp extends StatelessWidget {
 }
 
 class TelaComparacao extends StatefulWidget {
+  const TelaComparacao({super.key});
+
   @override
   _TelaComparacaoState createState() => _TelaComparacaoState();
 }

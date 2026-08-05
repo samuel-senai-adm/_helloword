@@ -5,6 +5,8 @@ void main() {
 }
 
 class MeuApp extends StatelessWidget {
+  const MeuApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(home: TelaTeclados());
@@ -16,6 +18,8 @@ class TelaTeclados extends StatelessWidget {
   final emailController = TextEditingController();
   final idadeController = TextEditingController();
   final telefoneController = TextEditingController();
+
+  TelaTeclados({super.key});
 
   @override
   Widget build(BuildContext context) {
