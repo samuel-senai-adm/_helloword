@@ -93,7 +93,7 @@ class _MapaPageState extends State<MapaPage> {
                   height: 50,
                   child: const Icon(
                     Icons.location_on,
-                    color: Colors.red,
+                    color: Colors.purple,
                     size: 50,
                   ),
                 ),
