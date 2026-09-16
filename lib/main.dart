@@ -1,110 +1,143 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 void main() {
-  runApp(const MeuApp());
+  runApp(const MyApp());
 }
 
-class MeuApp extends StatelessWidget {
-  const MeuApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Meu Mapa',
-      home: const MapaPage(),
+      home: const SensorPage(),
     );
   }
 }
 
-class MapaPage extends StatefulWidget {
-  const MapaPage({super.key});
+class SensorPage extends StatefulWidget {
+  const SensorPage({super.key});
 
   @override
-  State<MapaPage> createState() => _MapaPageState();
+  State<SensorPage> createState() => _SensorPageState();
 }
 
-class _MapaPageState extends State<MapaPage> {
-  Position? posicao; //pode ser nula
+class _SensorPageState extends State<SensorPage> {
+  double x = 0;
+  double y = 0;
+  double z = 0;
 
-  final MapController mapController = MapController();
+  // Valores anteriores do acelerômetro
+  double ultimoX = 0;
+  double ultimoY = 0;
+  double ultimoZ = 0;
 
-  Future<void> buscarLocalizacao() async {
-    bool servicoAtivo = await Geolocator.isLocationServiceEnabled();
+  // Indica se o celular está sendo movimentado
+  bool movimentando = false;
 
-    if (!servicoAtivo) {
-      await Geolocator.openLocationSettings();
-      return;
-    }
-
-    LocationPermission permissao = await Geolocator.checkPermission();
-
-    if (permissao == LocationPermission.denied) {
-      permissao = await Geolocator.requestPermission();
-    }
-
-    if (permissao == LocationPermission.denied ||
-        permissao == LocationPermission.deniedForever) {
-      return;
-    }
-
-    Position novaPosicao = await Geolocator.getCurrentPosition();
-
-    setState(() {
-      posicao = novaPosicao;
-    });
-
-    mapController.move(LatLng(novaPosicao.latitude, novaPosicao.longitude), 16);
-  }
+  // Guarda a conexão com o sensor
+  StreamSubscription? acelerometro;
 
   @override
   void initState() {
     super.initState();
-    buscarLocalizacao();
+
+    // Recebe os valores do acelerômetro
+    acelerometro = accelerometerEventStream().listen((event) {
+      // Calcula quanto os valores mudaram
+      double diferencaX = (event.x - ultimoX).abs();
+      double diferencaY = (event.y - ultimoY).abs();
+      double diferencaZ = (event.z - ultimoZ).abs();
+
+      // Define o limite para considerar que houve movimento
+      bool houveMovimento =
+          diferencaX > 1.5 ||
+          diferencaY > 1.5 ||
+          diferencaZ > 1.5;
+
+      setState(() {
+        x = event.x;
+        y = event.y;
+        z = event.z;
+
+        movimentando = houveMovimento;
+
+        // Guarda os valores atuais para comparar na próxima leitura
+        ultimoX = event.x;
+        ultimoY = event.y;
+        ultimoZ = event.z;
+      });
+    });
   }
 
-  @override //5
+  @override
+  void dispose() {
+    acelerometro?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Meu Mapa')),
-
-      body: FlutterMap(
-        mapController: mapController,
-        options: const MapOptions(
-          initialCenter: LatLng(-21.470000, -47.030000),
-          initialZoom: 13,
-        ),
-
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.mapa_flutter',
-          ),
-
-          if (posicao != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(posicao!.latitude, posicao!.longitude),
-                  width: 50,
-                  height: 50,
-                  child: const Icon(
-                    Icons.location_on,
-                    color: Colors.purple,
-                    size: 50,
-                  ),
-                ),
-              ],
-            ),
-        ],    
+      appBar: AppBar(
+        title: const Text('Sensor do celular'),
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: buscarLocalizacao,
-          child: const Icon(Icons.my_location),
+
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Acelerômetro',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            Text(
+              'X: ${x.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 24),
+            ),
+
+            Text(
+              'Y: ${y.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 24),
+            ),
+
+            Text(
+              'Z: ${z.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 24),
+            ),
+
+            const SizedBox(height: 40),
+
+            // Indica se o celular está parado ou em movimento
+            Text(
+              movimentando ? 'CELULAR EM MOVIMENTO' : 'CELULAR PARADO',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: movimentando ? Colors.red : Colors.green,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Altera a informação na tela quando há movimento
+            Icon(
+              movimentando ? Icons.vibration : Icons.phone_android,
+              size: 50,
+              color: movimentando ? Colors.red : Colors.green,
+            ),
+          ],
         ),
+      ),
     );
   }
 }
