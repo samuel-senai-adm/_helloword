@@ -40,6 +40,7 @@ dependencies:
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
   sensors_plus: ^7.1.0
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
