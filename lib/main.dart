@@ -1,192 +1,235 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
+import 'tarefa.dart';
+import 'database_helper.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MeuAplicativo());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MeuAplicativo extends StatelessWidget {
+  const MeuAplicativo({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Registro de Produto',
+      title: 'Tarefas',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
       ),
-      home: const ProdutoPage(),
+      home: const TarefasPage(),
     );
   }
 }
 
-class ProdutoPage extends StatefulWidget {
-  const ProdutoPage({super.key});
+class TarefasPage extends StatefulWidget {
+  const TarefasPage({super.key});
 
   @override
-  State<ProdutoPage> createState() => _ProdutoPageState();
+  State<TarefasPage> createState() => _TarefasPageState();
 }
 
-class _ProdutoPageState extends State<ProdutoPage> {
-  final TextEditingController nomeController = TextEditingController();
+class _TarefasPageState extends State<TarefasPage> {
+  final DatabaseHelper dbHelper = DatabaseHelper();
 
-  File? foto;
+  final TextEditingController descricaoController = TextEditingController();
 
-  // Função para abrir a câmera e tirar a foto
-  Future<void> tirarFoto() async {
-    final ImagePicker picker = ImagePicker();
+  String prioridadeSelecionada = 'Média';
 
-    final XFile? imagem = await picker.pickImage(
-      source: ImageSource.camera,
-    );
+  List<Tarefa> tarefas = [];
 
-    if (imagem != null) {
-      setState(() {
-        foto = File(imagem.path);
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+
+    carregarTarefas();
   }
 
-  // Função para cadastrar o produto
-  void cadastrarProduto() {
-    if (nomeController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Digite o nome do produto.'),
-        ),
-      );
+  // READ
+  Future<void> carregarTarefas() async {
+    final resultado = await dbHelper.listarTarefas();
+
+    setState(() {
+      tarefas = resultado;
+    });
+  }
+
+  // CREATE
+  Future<void> adicionarTarefa() async {
+    final descricao = descricaoController.text.trim();
+
+    if (descricao.isEmpty) {
       return;
     }
 
-    if (foto == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tire uma foto do produto.'),
-        ),
-      );
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Produto cadastrado com sucesso!'),
-      ),
+    final tarefa = Tarefa(
+      descricao: descricao,
+      prioridade: prioridadeSelecionada,
+      status: 'Pendente',
     );
+
+    await dbHelper.inserirTarefa(tarefa);
+
+    descricaoController.clear();
+
+    setState(() {
+      prioridadeSelecionada = 'Média';
+    });
+
+    await carregarTarefas();
+  }
+
+  // UPDATE
+  Future<void> concluirTarefa(Tarefa tarefa) async {
+    final tarefaAtualizada = Tarefa(
+      id: tarefa.id,
+      descricao: tarefa.descricao,
+      prioridade: tarefa.prioridade,
+      status: 'Concluída',
+    );
+
+    await dbHelper.atualizarTarefa(tarefaAtualizada);
+
+    await carregarTarefas();
+  }
+
+  // DELETE
+  Future<void> excluirTarefa(int id) async {
+    await dbHelper.excluirTarefa(id);
+
+    await carregarTarefas();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registro de Produto'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Minhas Tarefas')),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-
-            const Text(
-              'Cadastrar Produto',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // Campo para o nome do produto
-            TextField(
-              controller: nomeController,
-              decoration: const InputDecoration(
-                labelText: 'Nome do produto',
-                hintText: 'Digite o nome do produto',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.inventory),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            const Text(
-              'Foto do produto',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Área onde a foto será exibida
-            Container(
-              width: double.infinity,
-              height: 300,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 2,
+      body: Column(
+        children: [
+          // FORMULÁRIO
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                TextField(
+                  controller: descricaoController,
+                  decoration: const InputDecoration(
+                    labelText: 'Descrição da tarefa',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(10),
-              ),
 
-              child: foto == null
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.camera_alt,
-                            size: 70,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Nenhuma foto tirada',
+                const SizedBox(height: 12),
+
+                DropdownButtonFormField<String>(
+                  value: prioridadeSelecionada,
+                  decoration: const InputDecoration(
+                    labelText: 'Prioridade',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Baixa', child: Text('Baixa')),
+                    DropdownMenuItem(value: 'Média', child: Text('Média')),
+                    DropdownMenuItem(value: 'Alta', child: Text('Alta')),
+                  ],
+                  onChanged: (valor) {
+                    if (valor != null) {
+                      setState(() {
+                        prioridadeSelecionada = valor;
+                      });
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: adicionarTarefa,
+                    child: const Text('ADICIONAR TAREFA'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(),
+
+          // LISTAGEM
+          Expanded(
+            child: tarefas.isEmpty
+                ? const Center(child: Text('Nenhuma tarefa cadastrada.'))
+                : ListView.builder(
+                    itemCount: tarefas.length,
+                    itemBuilder: (context, index) {
+                      final tarefa = tarefas[index];
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+
+                        child: ListTile(
+                          leading: CircleAvatar(child: Text('${tarefa.id}')),
+
+                          title: Text(
+                            tarefa.descricao,
                             style: TextStyle(
-                              color: Colors.grey,
+                              decoration: tarefa.status == 'Concluída'
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
-                        ],
-                      ),
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        foto!,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-            ),
 
-            const SizedBox(height: 20),
+                          subtitle: Text(
+                            'Prioridade: ${tarefa.prioridade}\n'
+                            'Status: ${tarefa.status}',
+                          ),
 
-            // Botão para abrir a câmera
-            ElevatedButton.icon(
-              onPressed: tirarFoto,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('TIRAR FOTO'),
-            ),
+                          isThreeLine: true,
 
-            const SizedBox(height: 15),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Concluir
+                              if (tarefa.status != 'Concluída')
+                                IconButton(
+                                  icon: const Icon(Icons.check),
+                                  tooltip: 'Concluir',
+                                  onPressed: () {
+                                    concluirTarefa(tarefa);
+                                  },
+                                ),
 
-            // Botão para cadastrar
-            ElevatedButton.icon(
-              onPressed: cadastrarProduto,
-              icon: const Icon(Icons.check),
-              label: const Text('CADASTRAR PRODUTO'),
-            ),
-          ],
-        ),
+                              // Excluir
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                tooltip: 'Excluir',
+                                onPressed: () {
+                                  excluirTarefa(tarefa.id!);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    descricaoController.dispose();
+
+    super.dispose();
   }
 }
