@@ -42,7 +42,7 @@ class _TelaExcluirState extends State<TelaExcluir> {
 
     try {
       final resposta = await http.delete(
-        Uri.parse('http://10.140.169.22/iot/sensores.php'),
+        Uri.parse('http://10.140.169.12/iot/sensores.php'),
 
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ class _TelaExcluirState extends State<TelaExcluir> {
         child: Column(
           children: [
             TextField(
-              controller: idController,
+              controller: idController,  
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: 'ID do sensor',
